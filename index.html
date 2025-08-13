@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>RanyaFood</title>
+<style>
+  :root{
+    --bg1:#0f0c29; --bg2:#302b63; --bg3:#24243e;
+    --brand:#ff7043; --brand-2:#ff8a65; --text:#fff;
+    --glass: rgba(255,255,255,.08);
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:"Tajawal",system-ui,Segoe UI,Tahoma; color:var(--text);
+       background: radial-gradient(1200px 600px at 10% -10%, #ffedd5 0%, transparent 35%),
+                   linear-gradient(135deg,var(--bg1),var(--bg2) 50%,var(--bg3));
+       min-height:100dvh; overflow-x:hidden}
+
+  /* ==== Hero ===== */
+  .hero{position:relative; padding:80px 16px 32px; text-align:center; overflow:hidden}
+  .hero h1{font-size:clamp(28px,4vw,48px); margin:0 0 10px; letter-spacing:1px}
+  .hero p{opacity:.9; margin:0 auto 16px; max-width:720px}
+  .glow{position:absolute; inset:-20% -10%; background: radial-gradient(45% 30% at 50% 0%, rgba(255,112,67,.35), transparent 60%), radial-gradient(40% 30% at 85% 25%, rgba(255,138,101,.18), transparent 70%);} 
+
+  /* ===== Nav / Tabs ===== */
+  .tabs{position:sticky; top:0; z-index:30; backdrop-filter: blur(12px);
+        background: linear-gradient(180deg, rgba(0,0,0,.45), rgba(0,0,0,.15));
+        border-bottom:1px solid rgba(255,255,255,.08)}
+  .tabs-wrap{display:flex; gap:10px; padding:12px 16px; justify-content:center; flex-wrap:wrap}
+  .tab{cursor:pointer; padding:10px 16px; border-radius:999px; font-weight:700;
+       background:var(--glass); border:1px solid rgba(255,255,255,.08);
+       transition:.25s transform,.25s background,.25s box-shadow}
+  .tab:hover{transform:translateY(-2px); box-shadow:0 10px 20px rgba(0,0,0,.25)}
+  .tab.active{background:linear-gradient(90deg, var(--brand), var(--brand-2)); color:#1b0a06}
+
+  /* ===== Search / CTA ===== */
+  .toolbar{display:flex; gap:12px; justify-content:center; align-items:center; padding:16px; flex-wrap:wrap}
+  .search{min-width:260px; max-width:520px; width:60%; padding:12px 16px; border:none; border-radius:16px;
+          background:rgba(255,255,255,.12); color:#fff; outline:none}
+  .btn{padding:12px 18px; border-radius:14px; border:1px solid rgba(255,255,255,.15); cursor:pointer; font-weight:700; color:#fff; background:linear-gradient(90deg,#ff784e,#ff9c6e); transition:.25s transform}
+  .btn:hover{transform:translateY(-2px)}
+
+  /* ===== Grid ===== */
+  .grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(230px,1fr)); gap:18px; padding:18px 18px 60px; width:clamp(300px,95vw,1300px); margin:0 auto}
+  .card{position:relative; border-radius:22px; overflow:hidden; background:var(--glass); border:1px solid rgba(255,255,255,.08); isolation:isolate; box-shadow:0 12px 30px rgba(0,0,0,.25); transform-style:preserve-3d; transition:.35s transform}
+  .card:hover{transform:translateY(-8px)}
+  .thumb{height:160px; background:#111; overflow:hidden}
+  .thumb img{width:100%; height:100%; object-fit:cover; transform:scale(1.02); transition: .6s transform}
+  .card:hover .thumb img{transform:scale(1.12)}
+  .badge{position:absolute; top:10px; left:10px; padding:6px 10px; border-radius:999px; background:rgba(0,0,0,.55); font-size:12px}
+  .body{padding:14px 14px 16px}
+  .title{font-weight:800; margin:0 0 6px; font-size:18px}
+  .meta{opacity:.85; font-size:13px; margin-bottom:8px}
+  .tags{display:flex; flex-wrap:wrap; gap:6px}
+  .tag{font-size:12px; padding:6px 8px; border-radius:999px; background:rgba(255,255,255,.1); border:1px solid rgba(255,255,255,.1)}
+
+  /* ===== Modal (Recipe Page feel) ===== */
+  .modal{position:fixed; inset:0; display:none; place-items:center; background:rgba(0,0,0,.6); z-index:50}
+  .modal.open{display:grid}
+  .sheet{width:min(900px,92vw); border-radius:22px; background:linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.04)); border:1px solid rgba(255,255,255,.12); overflow:hidden}
+  .sheet .cover{height:260px; overflow:hidden}
+  .sheet .cover img{width:100%; height:100%; object-fit:cover}
+  .sheet .content{padding:18px}
+  .row{display:grid; grid-template-columns:1fr; gap:16px}
+  @media (min-width:800px){ .row{grid-template-columns:1.2fr .8fr} }
+  .close{position:absolute; top:14px; right:14px; background:rgba(0,0,0,.55); border:none; color:#fff; border-radius:10px; padding:10px 12px; cursor:pointer}
+  ul{padding-inline-start:20px}
+
+  /* ===== Footer ===== */
+  footer{padding:30px 16px; text-align:center; opacity:.8}
+</style>
+</head>
+<body>
+  <div class="hero">
+    <div class="glow" aria-hidden></div>
+    <h1>🍲 RanyaFood</h1>
+    <p>اختار الصنف اللي تحبّه وشوف أقوى المأكولات والمشروبات التونسية مع وصفات مختصرة وحركات أنيقة.</p>
+  </div>
+
+  <div class="tabs">
+    <div class="tabs-wrap">
+      <button class="tab active" data-cat="main">الوجبات الرئيسية</button>
+      <button class="tab" data-cat="salads">السلطات والمقبلات</button>
+      <button class="tab" data-cat="bakery">الخبز والمعجنات</button>
+      <button class="tab" data-cat="desserts">الحلويات</button>
+      <button class="tab" data-cat="drinks">المشروبات</button>
+    </div>
+  </div>
+
+  <div class="toolbar">
+    <input id="q" class="search" placeholder="🔎 ابحث باسم أكلة / مشروب..." />
+    <button id="random" class="btn">🎲 عشوائي</button>
+    <button id="share" class="btn">🔗 شارك الصفحة</button>
+  </div>
+
+  <section id="grid" class="grid"></section>
+
+  <!-- Modal -->
+  <div id="modal" class="modal" role="dialog" aria-modal="true">
+    <div class="sheet">
+      <button class="close" id="close">✕</button>
+      <div class="cover"><img id="mImg" alt="" /></div>
+      <div class="content">
+        <h2 id="mTitle" style="margin:6px 0 10px"></h2>
+        <p id="mMeta" class="meta"></p>
+        <div class="row">
+          <div>
+            <h3>المقادير</h3>
+            <ul id="mIngr"></ul>
+            <h3>الطريقة المختصرة</h3>
+            <ol id="mSteps"></ol>
+          </div>
+          <div>
+            <h3>نصائح</h3>
+            <ul id="mTips"></ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer>© RanyaFood -2025-</footer>
+
+<script>
+// ===== Data (أقوى المأكولات والمشروبات التونسية) =====
+const data = {
+  main: [
+    r('كسكسي بالعلوش','2.jpg','طبق العائلة رقم 1','كسكسي، لحم علّوش، خضر، هريسة','بلّل الكسكسي بالبخار، حضّر المرق بالتقلية والتوابل، كمّل التسوية وقدّم'),
+    r('ملوخية تونسية','3.webp','طعم عميق ورائحة دار','ملوخية مطحونة، لحم، زيت زيتون، ثوم','قلّي اللحم والثوم، زيد الزيت والملوخية والماء وخليها تطبخ على نار هادئة'),
+    r('لبلابي','4.jpg','فطور شعبي شتوي','حمص، مرق، خبز، هريسة، بيض','اسخّن الحمص مع المرق، فرّغ على خبز مقطع، زيد هريسة وبيض مسلوق'),
+    r('عجة بالتون','5.jpg','سريعة ولذيذة','بيض، تون، هريسة، فلفل','قلّي الفلفل، اخلط البيض والتون والهريسة، وصبّ وخليه يتمسك'),
+    r('كعابر (كفتة تونسية)','6.jpg','بهارات تونسية واضحة','لحم مفروم، تابل، كروية، ثوم','تبّل وشكّل كعابر، اقليهم أو اطبخهم في صلصة طماطم'),
+    r('كمونية','7.jpg','ثقيلة بالنكهات','كبدة/قلب، كروية، تابل، طماطم','قلّي الأحشاء مع الثوم والبهارات، زيد طماطم وماء وخلّيه يغلّي'),
+    r('طاجين مرقاز','8.jpg','نسخة تونسية من الفريتاتا','بيض، مرقاز، بطاطا، جبن','قلّي الحشو، اخلط مع البيض والجبن، ودخّل للفرن'),
+    r('مقرونة عربية','9.jpg','صلصة هريسة وطماطم','مقرونة، صلصة طماطم، هريسة، تابل','حضّر الصلصة بالهريسة والثوم، اسلق المقرونة وامزج'),
+    r('سلاطة مشوية (كطبق جانبي رئيسي)','1.jpg','فلفل وطماطم مشويين','فلفل، طماطم، بصل، زيت زيتون، تون','اشوي الخضر، قشّر واقطع، زيد زيت زيتون وتون'),
+    r('سمك مشوي بالهريسة','10.jpg','بحري بنكهة تونسية','سمك، هريسة، ثوم، كمون','تبّل بالهريسة والثوم والكمون واشويه')
+  ],
+  salads: [
+    r('سلاطة تونسية','11.jpg','بسيطة ومنعشة','طماطم، خيار، بصل، زيت زيتون','اقطع كل شي صغير، تبّل بالملح والزيت والليمون'),
+    r('سلاطة مشوية','1.jpg','أيقونة على الفحم','فلفل، طماطم، بصل، ثوم','اشوي، قشّر، اهرس وخلاّط خفيف، زيّت بالتون'),
+    r('بريك بالبيض','12.jpg','مقبل ملك','ورقة ملسوقة، بيض، تون، بقدونس','احشي واثني واقليه حتى يتحمّر'),
+  ],
+  bakery: [
+    r('خبز طابونة','13.jpg','خبز التنور التونسي','سميد، خميرة، ماء، ملح','اعجن وخمّر واطبخ على سطح ساخن/فرن حجر'),
+    r('خبز دار','14.jpg','ليّن داخل ومقرمش برا','فرينة، زيت زيتون، سكر، ملح','اعجن وخمّر، شكّل وادهن زيت وخبز'),
+    r('فطاير ملسوقة بالجبن','16.jpg','سريعة','ورقة ملسوقة، جبن، بيض','احشي واطوِ وشوّي بالمقلى')
+  ],
+  desserts: [
+    r('بقلاوة تونسية','17.webp','فاخرة ولوز','عجين رقائق، لوز/فستق، عسل','رتّب الطبقات بالمكسرات واخبز واسقِ بالعسل'),
+    r('زلاّبية ومخارق','18.jpg','رمضان كلاسيك','عجين مخمّر، قطر','اقلي الأشكال واسقِ بالقطر'),
+    r('كعك الورقة','19.jpg','خصوصية تونسية','ورق رقيق، لوز مطحون','احشي ولفّ وخبز خفيف'),
+    r('يويو','20.jpg','دونات تونسي','عجين مقلي، قطر، ليمون','اقلي الحلقات واسقِ بشراب الليمون'),
+    r('سمسة','21.jpg','مثلثات باللوز','عجين رقائق، لوز، عسل','احشي بالمكسرات وخبز واسقِ')
+  ],
+  drinks: [
+    r('لقمي (عصارة نخيل)','23.avif','مشروب تقليدي موسمي','عصارة نخيل، ثلج','يُقدّم طازجًا مبردًا'),
+    r('قهوة عربي','22.jpg','ثقافة المقاهي','بن مطحون، ماء، سكر','يُطهى برفق على نار هادئة'),
+    r('ليمونادة تونسية','25.jpg','منعشة','ليمون، سكر، ماء زهر','اخلط وقدّم مع ثلج'),
+    r('رُوزاطة (شراب لوز)','24.jpg','كلاسيكي','لوز، سكر، ماء زهر','ينقع اللوز ويُهرس ويُصفّى مع السكر'),
+    r('عصير رمان','26.jpg','خريفي','رمان طازج','اعصر وقدّم فورًا')
+  ]
+};
+
+function r(name,img,meta,ingr,steps){
+  return {name,img,meta,ingr:ingr.split('، '), steps:steps.split('، '), tips:['no element']}
+}
+
+// ===== Render =====
+const grid = document.getElementById('grid');
+const tabs = document.querySelectorAll('.tab');
+const q = document.getElementById('q');
+let current = 'main';
+
+function card(item, i){
+  return `<article class="card" data-i="${i}">
+    <div class="thumb"><img loading="lazy" src="${item.img}" alt="${item.name}"></div>
+    <span class="badge">${i+1}</span>
+    <div class="body">
+      <h3 class="title">${item.name}</h3>
+      <div class="meta">${item.meta}</div>
+      <div class="tags"><span class="tag">${current}</span><span class="tag">تونسي أصيل</span></div>
+    </div>
+  </article>`
+}
+
+function render(){
+  const list = data[current];
+  const term = q.value.trim();
+  const filtered = term ? list.filter(x=>x.name.includes(term)) : list;
+  grid.innerHTML = filtered.map(card).join('');
+}
+
+tabs.forEach(t=>t.addEventListener('click',()=>{
+  tabs.forEach(x=>x.classList.remove('active'));
+  t.classList.add('active');
+  current = t.dataset.cat;
+  location.hash = t.dataset.cat; // pseudo routing (machrobat.html → drinks)
+  render();
+}));
+
+q.addEventListener('input', render);
+
+// random & share
+random.addEventListener('click',()=>{
+  const list = data[current];
+  const i = Math.floor(Math.random()*list.length);
+  openModal(list[i]);
+});
+share.addEventListener('click', async()=>{
+  const url = location.href.split('#')[0] + '#' + current;
+  try{ await navigator.clipboard.writeText(url); alert('تم نسخ الرابط 👍'); }catch(e){ alert(url); }
+});
+
+// deep-link by hash
+if(location.hash){
+  const wanted = location.hash.replace('#','');
+  const btn = document.querySelector(`.tab[data-cat="${wanted}"]`);
+  if(btn){ btn.click(); } else { render(); }
+}else{ render(); }
+
+// ===== Modal Logic =====
+const modal = document.getElementById('modal');
+const closeBtn = document.getElementById('close');
+const mImg = document.getElementById('mImg');
+const mTitle = document.getElementById('mTitle');
+const mMeta = document.getElementById('mMeta');
+const mIngr = document.getElementById('mIngr');
+const mSteps = document.getElementById('mSteps');
+const mTips = document.getElementById('mTips');
+
+grid.addEventListener('click', e=>{
+  const card = e.target.closest('.card');
+  if(!card) return;
+  const i = +card.dataset.i;
+  openModal((q.value? data[current].filter(x=>x.name.includes(q.value))[i] : data[current][i]));
+});
+
+function openModal(item){
+  if(!item) return;
+  mImg.src = item.img; mImg.alt = item.name;
+  mTitle.textContent = item.name;
+  mMeta.textContent = item.meta;
+  mIngr.innerHTML = item.ingr.map(x=>`<li>${x}</li>`).join('');
+  mSteps.innerHTML = item.steps.map(x=>`<li>${x}</li>`).join('');
+  mTips.innerHTML = item.tips.map(x=>`<li>${x}</li>`).join('');
+  modal.classList.add('open');
+}
+
+closeBtn.addEventListener('click', ()=> modal.classList.remove('open'));
+modal.addEventListener('click', (e)=>{ if(e.target===modal) modal.classList.remove('open') });
+</script>
+</body>
+</html>
